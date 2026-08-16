@@ -2302,8 +2302,7 @@ static int ufs_qcom_apply_dev_quirks(struct ufs_hba *hba)
 	/* Set the default auto-hiberate idle timer value to 5ms */
 	hba->ahit = FIELD_PREP(UFSHCI_AHIBERN8_TIMER_MASK, 5) |
 		    FIELD_PREP(UFSHCI_AHIBERN8_SCALE_MASK, 3);
-	/* Set the clock gating delay to performance mode */
-	hba->clk_gating.delay_ms = UFS_QCOM_CLK_GATING_DELAY_MS_PERF;
+	hba->clk_gating.delay_ms = UFS_QCOM_CLK_GATING_DELAY_MS_PWR_SAVE;
 	spin_unlock_irqrestore(hba->host->host_lock, flags);
 
 	if (hba->dev_quirks & UFS_DEVICE_QUIRK_HOST_PA_SAVECONFIGTIME)
