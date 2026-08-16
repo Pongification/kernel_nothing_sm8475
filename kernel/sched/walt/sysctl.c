@@ -54,7 +54,7 @@ unsigned int sysctl_sched_walt_rotate_big_tasks;
 unsigned int sysctl_sched_task_unfilter_period;
 unsigned int __read_mostly sysctl_sched_asym_cap_sibling_freq_match_pct;
 unsigned int sysctl_walt_low_latency_task_threshold; /* disabled by default */
-unsigned int sysctl_sched_conservative_pl;
+unsigned int sysctl_sched_conservative_pl = 1;
 unsigned int sysctl_sched_min_task_util_for_boost = 51;
 unsigned int sysctl_sched_min_task_util_for_uclamp = 51;
 unsigned int sysctl_sched_min_task_util_for_colocation = 35;
@@ -66,7 +66,7 @@ unsigned int sysctl_sched_bug_on_rt_throttle;
 unsigned int sysctl_panic_on_walt_bug;
 unsigned int sysctl_sched_suppress_region2;
 unsigned int sysctl_sched_skip_sp_newly_idle_lb = 1;
-unsigned int sysctl_sched_hyst_min_coloc_ns = 80000000;
+unsigned int sysctl_sched_hyst_min_coloc_ns = 40000000;
 unsigned int sysctl_sched_asymcap_boost;
 static int sysctl_sched_sibling_cluster_map[4] = {-1, -1, -1, -1};
 /* range is [1 .. INT_MAX] */
@@ -935,17 +935,17 @@ void walt_tunables(void)
 	sched_load_granule = DEFAULT_SCHED_RAVG_WINDOW / NUM_LOAD_INDICES;
 
 	for (i = 0; i < WALT_NR_CPUS; i++) {
-		sysctl_sched_coloc_busy_hyst_cpu[i] = 39000000;
+		sysctl_sched_coloc_busy_hyst_cpu[i] = 20000000;
 		sysctl_sched_coloc_busy_hyst_cpu_busy_pct[i] = 10;
-		sysctl_sched_util_busy_hyst_cpu[i] = 5000000;
-		sysctl_sched_util_busy_hyst_cpu_util[i] = 15;
+		sysctl_sched_util_busy_hyst_cpu[i] = 2000000;
+		sysctl_sched_util_busy_hyst_cpu_util[i] = 100;
 	}
 
 	sysctl_sched_coloc_busy_hyst_enable_cpus = 112;
 
 	sysctl_sched_util_busy_hyst_enable_cpus = 255;
 
-	sysctl_sched_coloc_busy_hyst_max_ms = 5000;
+	sysctl_sched_coloc_busy_hyst_max_ms = 1000;
 
 	sched_ravg_window = DEFAULT_SCHED_RAVG_WINDOW;
 
