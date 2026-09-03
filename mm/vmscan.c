@@ -3046,7 +3046,7 @@ static bool iterate_mm_list(struct lruvec *lruvec, struct lru_gen_mm_walk *walk,
 		/* force scan for those added after the last iteration */
 		if (!mm_state->tail || mm_state->tail == mm_state->head) {
 			mm_state->tail = mm_state->head->next;
-			walk->full_scan = true;
+			walk->force_scan = true;
 		}
 
 		mm = list_entry(mm_state->head, struct mm_struct, lru_gen.list);
@@ -3971,7 +3971,7 @@ static bool try_to_inc_max_seq(struct lruvec *lruvec, unsigned long max_seq,
 	} while (mm);
 done:
 	if (success)
-		inc_max_seq(lruvec, can_swap, full_scan);
+		inc_max_seq(lruvec, can_swap, force_scan);
 
 	return success;
 }
@@ -4279,7 +4279,7 @@ static bool sort_page(struct lruvec *lruvec, struct page *page, struct scan_cont
 		success = lru_gen_del_page(lruvec, page, true);
 		VM_WARN_ON_ONCE_PAGE(!success, page);
 		SetPageUnevictable(page);
-		add_page_to_lru_list(page, lruvec);
+		add_page_to_lru_list(page, lruvec, LRU_UNEVICTABLE);
 		__count_vm_events(UNEVICTABLE_PGCULLED, delta);
 		return true;
 	}
@@ -4289,7 +4289,7 @@ static bool sort_page(struct lruvec *lruvec, struct page *page, struct scan_cont
 		success = lru_gen_del_page(lruvec, page, true);
 		VM_WARN_ON_ONCE_PAGE(!success, page);
 		SetPageSwapBacked(page);
-		add_page_to_lru_list_tail(page, lruvec);
+		add_page_to_lru_list_tail(page, lruvec, LRU_INACTIVE_ANON);
 		return true;
 	}
 
@@ -4814,7 +4814,7 @@ static bool fill_evictable(struct lruvec *lruvec)
 			VM_WARN_ON_ONCE_PAGE(page_is_file_lru(page) != type, page);
 			VM_WARN_ON_ONCE_PAGE(page_lru_gen(page) != -1, page);
 
-			del_page_from_lru_list(page, lruvec);
+			del_page_from_lru_list(page, lruvec, lru);
 			success = lru_gen_add_page(lruvec, page, false);
 			VM_WARN_ON_ONCE(!success);
 
@@ -4845,7 +4845,7 @@ static bool drain_evictable(struct lruvec *lruvec)
 
 			success = lru_gen_del_page(lruvec, page, false);
 			VM_WARN_ON_ONCE(!success);
-			add_page_to_lru_list(page, lruvec);
+			add_page_to_lru_list(page, lruvec, type * LRU_INACTIVE_FILE);
 
 			if (!--remaining)
 				return false;
