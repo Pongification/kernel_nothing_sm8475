@@ -2061,12 +2061,13 @@ static int qcom_slim_ngd_ctrl_probe(struct platform_device *pdev)
 	}
 
 	ret = devm_request_irq(dev, ctrl->irq, qcom_slim_ngd_interrupt,
-			       IRQF_TRIGGER_HIGH, "slim-ngd", ctrl);
+			       IRQF_TRIGGER_HIGH | IRQF_NO_AUTOEN,
+			       "slim-ngd", ctrl);
 	if (ret) {
 		dev_err(&pdev->dev, "request IRQ failed\n");
 		return ret;
 	}
-	ctrl->irq_disabled = false;
+	ctrl->irq_disabled = true;
 
 	ctrl->wait_for_adsp_up = of_property_read_bool(pdev->dev.of_node,
 					"qcom,wait_for_adsp_up");
@@ -2154,13 +2155,15 @@ static int qcom_slim_ngd_ctrl_probe(struct platform_device *pdev)
 		goto pdr_release;
 	}
 
+	platform_driver_register(&qcom_slim_ngd_driver);
+
 	ret = of_qcom_slim_ngd_register(dev, ctrl);
 	if (ret) {
 		SLIM_ERR(ctrl, "qcom_slim_ngd_register failed ret:%d\n", ret);
 		goto pdr_release;
 	}
 
-	platform_driver_register(&qcom_slim_ngd_driver);
+	qcom_slim_ngd_enable_irq(ctrl);
 	SLIM_INFO(ctrl, "NGD SB controller is up!\n");
 	return 0;
 
